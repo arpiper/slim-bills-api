@@ -1,0 +1,27 @@
+{
+    "name": "arch/slim-bills",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Andrew Piper",
+            "email": "pipera@uw.edu"
+        }
+    ],
+    "require": {
+        "slim/slim": "^3.0",
+        "monolog/monolog": "^1.23",
+        "mongodb/mongodb": "^1.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/app"
+        }
+    },
+    "config": {
+        "process-timeout": 0
+    },
+    "scripts": {
+      "start": "php -S localhost:8080 -t src/public"
+    }
+}

@@ -4,10 +4,12 @@
 $container = $app->getContainer();
 
 // view renderer
+/*
 $container['renderer'] = function ($c) {
     $settings = $c->get('settings')['renderer'];
     return new Slim\Views\PhpRenderer($settings['template_path']);
 };
+*/
 
 // monolog
 $container['logger'] = function ($c) {
@@ -24,4 +26,9 @@ $container['mdb'] = function ($c) {
     $conn_str = "mongodb://$db[user]:$db[pass]@$db[host]:$db[port]/$db[authdb]";
     $mdbClient = new \MongoDB\Client($conn_str);
     return $mdbClient->BillTracker;
+};
+
+# csrf guard
+$container['csrf'] = function ($c) {
+    return new \Slim\Csrf\Guard;
 };

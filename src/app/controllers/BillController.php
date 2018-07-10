@@ -5,28 +5,22 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Container\ContainerInterface as Container;
 
-class BillController {
+class BillController extends Controller {
     
-    protected $container;
-
-    public function __construct (Container $container) {
-        $this->container = $container;
-    }
-
     public function createBill (Request $req, Response $res, array $args) {
         $data = $req->getParsedBody();
         $db = $this->container['mdb'];
         $insertResult = $db->bills->insertOne([
-            'due_date' => $data['due_date'],
-            'amount' => $data['amount'],
-            'paid_to' => $data['paid_to'],
-            'split_by_ids' => $data['split_by'],
-            'split_count' => $data['split_count'],
-            'split_amount' => $data['split_amount'],
-            'paid_partial_ids' => $data['paid_partial_ids'],
-            'paid_full' => $data['paid_full'],
-            'paid_date' => $data['paid_date'],
-            'notes' => $data['notes'],
+            'due_date' => filter_var($data['due_date']),
+            'amount' => filter_var($data['amount'], FILTER_VALIDATE_FLOAT),
+            'paid_to' => filter_var($data['paid_to']),
+            'split_by_ids' => filter_var($data['split_by']),
+            'split_count' => filter_var($data['split_count']),
+            'split_amount' => filter_var($data['split_amount'], FILTER_VALIDATE_FLOAT),
+            'paid_partial_ids' => filter_var($data['paid_partial_ids']),
+            'paid_full' => filter_var($data['paid_full'], FILTER_VALIDATE_BOOLEAN),
+            'paid_date' => filter_var($data['paid_date']),
+            'notes' => filter_var($data['notes'], FILTER_SANITIZE_STRING),
         ]);
 
         $res = $res->withJson([
@@ -41,8 +35,12 @@ class BillController {
     public function readBill (Request $req, Response $res, array $args) {
         $db = $this->container['mdb'];
         $bill = $db->bills->findOne([
-            '_id' => new \MongoDB\BSON\ObjectId($args[billid]),
+            '_id' => new \MongoDB\BSON\ObjectId($args['billid']),
         ]);
+        var_dump($this->container->csrf->getTokenNameKey());
+        var_dump($this->container->csrf->getTokenValueKey());
+        var_dump($req->getAttribute('csrf_name'));
+        var_dump($req->getAttribute('csrf_token'));
         return $res->withJson($bill);
     }
 
@@ -62,11 +60,23 @@ class BillController {
         $db = $this->container['mdb'];
         $data = $req->getParsedBody();
         $bill = $db->bills->updateOne(
-            ['_id' => new \MongoDB\BSON\ObjectId($args[billid])],
-            ['$set' => $data],
+            ['_id' => new \MongoDB\BSON\ObjectId($args['billid'])],
+            ['$set' => $data]
         );
     }
 
     public function deleteBill (Request $req, Response $res, array $args) {
+        $db = $this->container['mdb'];
+        $billid = new \MongoDB\BSON\ObjectId($args['billid']);
+        $result = $bill->bills->deleteOne(['_id' => $billid]);
+        
+        $res = $res->withJson([
+            'message' => 'Bill deleted',
+            'data' => [
+                'count' => $result->getDeletedCount(),
+                'id' => $billid,
+            ],
+        ]);
+        return $res;
     }
 }

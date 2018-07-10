@@ -11,7 +11,8 @@
     "require": {
         "slim/slim": "^3.0",
         "monolog/monolog": "^1.23",
-        "mongodb/mongodb": "^1.4"
+        "mongodb/mongodb": "^1.4",
+        "slim/csrf": "^0.8.2"
     },
     "autoload": {
         "psr-4": {
@@ -19,7 +20,8 @@
         }
     },
     "config": {
-        "process-timeout": 0
+        "process-timeout": 0,
+        "vendor-dir": "./src/vendor"
     },
     "scripts": {
       "start": "php -S localhost:8080 -t src/public"

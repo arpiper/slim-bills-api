@@ -37,10 +37,6 @@ class BillController extends Controller {
         $bill = $db->bills->findOne([
             '_id' => new \MongoDB\BSON\ObjectId($args['billid']),
         ]);
-        var_dump($this->container->csrf->getTokenNameKey());
-        var_dump($this->container->csrf->getTokenValueKey());
-        var_dump($req->getAttribute('csrf_name'));
-        var_dump($req->getAttribute('csrf_token'));
         return $res->withJson($bill);
     }
 

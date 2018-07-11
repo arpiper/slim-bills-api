@@ -18,13 +18,9 @@ $app->group('/bills', function () {
 
     $this->get('/{billid}', BillController::class . ':readBill');
 
-    $this->post('/{billid}', BillController::class . ':updateBill');
+    $this->map(['post', 'put'],'/{billid}', BillController::class . ':updateBill');
 
-    $this->map(
-        ['get', 'post'], 
-        '/bills/{billid}/delete', 
-        BillController::class . ':deleteBill'
-    );
+    $this->delete('/{billid}', BillController::class . ':deleteBill');
 });
 
 $app->get('/', function (Request $request, Response $response, array $args) {

@@ -5,11 +5,13 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Container\ContainerInterface as Container;
 
+use App\models\Bill;
+
 class BillController extends Controller {
     
     public function createBill (Request $req, Response $res, array $args) {
         $data = $req->getParsedBody();
-        $db = $this->container['mdb'];
+        /*
         $insertResult = $db->bills->insertOne([
             'due_date' => filter_var($data['due_date']),
             'amount' => filter_var($data['amount'], FILTER_VALIDATE_FLOAT),
@@ -22,7 +24,8 @@ class BillController extends Controller {
             'paid_date' => filter_var($data['paid_date']),
             'notes' => filter_var($data['notes'], FILTER_SANITIZE_STRING),
         ]);
-
+        */
+        $insertResult = Bill::createBill($data);
         $res = $res->withJson([
             'message' => 'bill inserted',
             'data' => [
@@ -33,10 +36,7 @@ class BillController extends Controller {
     }
 
     public function readBill (Request $req, Response $res, array $args) {
-        $db = $this->container['mdb'];
-        $bill = $db->bills->findOne([
-            '_id' => new \MongoDB\BSON\ObjectId($args['billid']),
-        ]);
+        $bill = Bill::getBill($args['billid']);
         return $res->withJson($bill);
     }
 

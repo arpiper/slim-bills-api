@@ -11,20 +11,6 @@ class BillController extends Controller {
     
     public function createBill (Request $req, Response $res, array $args) {
         $data = $req->getParsedBody();
-        /*
-        $insertResult = $db->bills->insertOne([
-            'due_date' => filter_var($data['due_date']),
-            'amount' => filter_var($data['amount'], FILTER_VALIDATE_FLOAT),
-            'paid_to' => filter_var($data['paid_to']),
-            'split_by_ids' => filter_var($data['split_by']),
-            'split_count' => filter_var($data['split_count']),
-            'split_amount' => filter_var($data['split_amount'], FILTER_VALIDATE_FLOAT),
-            'paid_partial_ids' => filter_var($data['paid_partial_ids']),
-            'paid_full' => filter_var($data['paid_full'], FILTER_VALIDATE_BOOLEAN),
-            'paid_date' => filter_var($data['paid_date']),
-            'notes' => filter_var($data['notes'], FILTER_SANITIZE_STRING),
-        ]);
-        */
         $insertResult = Bill::createBill($data);
         $res = $res->withJson([
             'message' => 'bill inserted',

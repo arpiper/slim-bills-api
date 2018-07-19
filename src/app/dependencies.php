@@ -29,6 +29,11 @@ $container['mdb'] = function ($c) {
 };
 #App\models\Bill::setConnection($container['mdb']);
 
+// Authentication class
+$container['auth'] = function($c) {
+    return new App\auth\Auth;
+};
+
 # csrf guard
 $container['csrf'] = function ($c) {
     return new \Slim\Csrf\Guard;

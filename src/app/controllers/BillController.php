@@ -12,6 +12,7 @@ class BillController extends Controller {
     public function createBill (Request $req, Response $res, array $args) {
         $data = $req->getParsedBody();
         $insertResult = Bill::createBill($data);
+        var_dump(Bill::$connection);
         $res = $res->withJson([
             'message' => 'bill inserted',
             'data' => [
@@ -27,15 +28,20 @@ class BillController extends Controller {
     }
 
     public function readBills (Request $req, Response $res, array $args) {
-        $db = $this->container['mdb'];
-
-        $list = $db->bills->find();
+        //$db = $this->container['mdb'];
+        //$list = $db->bills->find();
+        $list = Bill::getBills();
+        $json = [
+            'message' => 'bills found',
+            'data' => [
+                'bills' => [],
+            ],
+        ];
         foreach ($list as $l) {
-            var_dump($l);
-            $res->getBody()->write($l['_id'] . '<br />');
+            //$res->getBody()->write($l['_id'] . '<br />');
+            $json['data']['bills'][$l->_id] = $l;
         }
-
-        return $res;
+        return $res->withJson($json);
     }
 
     public function updateBill (Request $req, Response $res, array $args) {

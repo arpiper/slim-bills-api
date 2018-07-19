@@ -12,25 +12,31 @@ $app->options('/{routes:.+}', function ($request, $response, $args) {
 });
 
 $app->group('/bills', function () {
-    $this->get('', BillController::class . ':readBills');
+    $this->get('', BillController::class . ':readBills')->setName('bills');
 
-    $this->post('', BillController::class . ':createBill');
+    $this->post('', BillController::class . ':createBill')->setName('bills');
 
-    $this->get('/{billid}', BillController::class . ':readBill');
+    $this->get('/{billid}', BillController::class . ':readBill')->setName('bill');
 
-    $this->map(['post', 'put'],'/{billid}', BillController::class . ':updateBill');
+    $this->map(['post', 'put'],'/{billid}', BillController::class . ':updateBill')->setName('updateBill');
 
-    $this->delete('/{billid}', BillController::class . ':deleteBill');
+    $this->delete('/{billid}', BillController::class . ':deleteBill')->setName('deleteBill');
 });
 
 $app->get('/', function (Request $request, Response $response, array $args) {
-    return $response->withJson(['message' => 'document root', 'data' => []]);
+    $routes = [];
+    foreach ($this->router->getRoutes() as $route) {
+        //array_push($routes, $route->getPattern());
+        $routes[$route->getName()] = $route->getPattern();
+    }
+    var_dump($this->mdb);
+    return $response->withJson(['message' => 'document root', 'data' => $routes]);
 });
 
 
-$app->add(new CsrfMiddleware($container));
+#$app->add(new CsrfMiddleware($container));
 
-$app->add($container->csrf);
+#$app->add($container->csrf);
 
 $app->add(function ($req, $res, $next) {
     $response = $next($req, $res);

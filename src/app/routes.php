@@ -4,7 +4,9 @@
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-use App\controllers\BillController;
+use App\controllers\BillController as BillC;
+use App\controllers\PersonController as PersonC;
+use App\controllers\UtilityController as UtilC;
 use App\middleware\CsrfMiddleware;
 
 $app->options('/{routes:.+}', function ($request, $response, $args) {
@@ -12,15 +14,27 @@ $app->options('/{routes:.+}', function ($request, $response, $args) {
 });
 
 $app->group('/bills', function () {
-    $this->get('', BillController::class . ':readBills')->setName('bills');
+    $this->get('', BillC::class . ':readBills')->setName('bills');
+    $this->post('', BillC::class . ':createBill')->setName('bills');
+    $this->get('/{id}', BillC::class . ':readBill')->setName('bill');
+    $this->map(['post', 'put'],'/{id}', BillC::class . ':updateBill')->setName('updateBill');
+    $this->delete('/{billid}', BillC::class . ':deleteBill')->setName('deleteBill');
+});
 
-    $this->post('', BillController::class . ':createBill')->setName('bills');
+$app->group('/persons', function () {
+    $this->get('', PersonC::class . ':readPersons')->setName('persons');
+    $this->post('', PersonC::class . ':createPerson')->setName('persons');
+    $this->get('/{id}', PersonC::class . ':readPerson')->setName('person');
+    $this->map(['post', 'put'], '/{id}', PersonC::class . ':updatePerson')->setName('updatePerson');
+    $this->delete('/{personid}', PersonC::class . ':deletePerson')->setName('deletePerson');
+});
 
-    $this->get('/{billid}', BillController::class . ':readBill')->setName('bill');
-
-    $this->map(['post', 'put'],'/{billid}', BillController::class . ':updateBill')->setName('updateBill');
-
-    $this->delete('/{billid}', BillController::class . ':deleteBill')->setName('deleteBill');
+$app->group('/utilities', function () {
+    $this->get('', UtilC::class . ':readUtilities')->setName('utilities');
+    $this->post('', UtilC::class . ':createUtility')->setName('utilities');
+    $this->get('/{id}', UtilC::class . ':readUtility')->setName('utility');
+    $this->map(['post', 'put'], '/{id}', UtilC::class . ':updateUtility')->setName('updateUtility');
+    $this->delete('/{utilityid}', UtilC::class . ':deletePerson')->setName('deleteUtility');
 });
 
 $app->get('/', function (Request $request, Response $response, array $args) {
@@ -29,7 +43,6 @@ $app->get('/', function (Request $request, Response $response, array $args) {
         //array_push($routes, $route->getPattern());
         $routes[$route->getName()] = $route->getPattern();
     }
-    var_dump($this->mdb);
     return $response->withJson(['message' => 'document root', 'data' => $routes]);
 });
 

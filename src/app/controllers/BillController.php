@@ -11,58 +11,52 @@ class BillController extends Controller {
     
     public function createBill (Request $req, Response $res, array $args) {
         $data = $req->getParsedBody();
-        $insertResult = Bill::createBill($data);
-        var_dump(Bill::$connection);
+        $billid = Bill::createBill($data);
         $res = $res->withJson([
             'message' => 'bill inserted',
             'data' => [
-                'billid' => $insertResult->getInsertedId(),
+                'billid' => $billid,
             ],
         ]);
         return $res;
     }
 
     public function readBill (Request $req, Response $res, array $args) {
-        $bill = Bill::getBill($args['billid']);
+        $bill = Bill::getBill($args['id']);
         return $res->withJson($bill);
     }
 
     public function readBills (Request $req, Response $res, array $args) {
-        //$db = $this->container['mdb'];
-        //$list = $db->bills->find();
-        $list = Bill::getBills();
-        $json = [
-            'message' => 'bills found',
-            'data' => [
-                'bills' => [],
-            ],
-        ];
-        foreach ($list as $l) {
-            //$res->getBody()->write($l['_id'] . '<br />');
-            $json['data']['bills'][$l->_id] = $l;
-        }
-        return $res->withJson($json);
+        $bills = Bill::getBills();
+        $res = $res->withJson([
+            'message' => "$bills[count] bills found",
+            'data' => $bills,
+        ]);
+        return $res;
     }
 
     public function updateBill (Request $req, Response $res, array $args) {
-        $db = $this->container['mdb'];
         $data = $req->getParsedBody();
-        $bill = $db->bills->updateOne(
-            ['_id' => new \MongoDB\BSON\ObjectId($args['billid'])],
-            ['$set' => $data]
-        );
+        $updated = Bill::updateBill($args['id'], $data);
+        $message = 'Error occured updating bill';
+        if ($udpated == 1) {
+            $message = "$args[id] successfully updated";
+        }
+        $res = $res->withJson([
+            'message' => $message,
+            'data' => [
+                'bill' => $args['id'],
+            ],
+        ]);
+        return $res;
     }
 
     public function deleteBill (Request $req, Response $res, array $args) {
-        $db = $this->container['mdb'];
-        $billid = new \MongoDB\BSON\ObjectId($args['billid']);
-        $result = $bill->bills->deleteOne(['_id' => $billid]);
-        
         $res = $res->withJson([
-            'message' => 'Bill deleted',
+            'message' => 'bill successfully deleted',
             'data' => [
-                'count' => $result->getDeletedCount(),
-                'id' => $billid,
+                'truthiness' => 'placeholder function, nothing actually changed',
+                'count' => 1,
             ],
         ]);
         return $res;

@@ -5,66 +5,66 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Container\ContainerInterface as Container;
 
-use App\models\Person;
+use App\models\Utility;
 
-class PersonController {
+class UtilityController {
     protected $container;
 
     public function __construct (Container $container) {
         $this->container = $container;
     }
 
-    public function createPerson (Request $req, Response $res, array $args) {
+    public function createUtility (Request $req, Response $res, array $args) {
         $data = $req->getParsedBody();
-        $personid = Person::createPerson($data);
+        $util = Utility::createUtility($data);
         $res = $res->withJson([
-            'message' => 'Person cretaed',
+            'message' => 'Utility created',
             'data' => [
-                'personid' => $personid,
+                'utility' => $util,
             ],
         ]);
         return $res;
     }
 
-    public function readPerson (Request $req, Response $res, array $args) {
-        $person = Person::getPerson($args['id']);
+    public function readUtility (Request $req, Response $res, array $args) {
+        $util = Utility::getUtility($args['id']);
         $res = $res->withJson([
             'message' => '',
             'data' => [
-                'person' => $person,
+                'utility' => $util,
             ],
         ]);
         return $res;
     } 
 
-    public function readPersons (Request $req, Response $res, array $args) {
-        $persons = Person::getPersons();
+    public function readUtilities (Request $req, Response $res, array $args) {
+        $utils = Utility::getUtilities();
         $res = $res->withJson([
-            'message' => "$persons[count] persons found",
-            'data' => $persons,
+            'message' => "$utils[count] persons found",
+            'data' => $utils,
         ]);
         return $res;
     }
 
-    public function updatePerson (Request $req, Response $res, array $args) {
+    public function updateUtility (Request $req, Response $res, array $args) {
         $data = $req->getParsedBody();
-        $updated = Person::updatePerson($args['id'], $data);
-        $message = 'Error occurred updating person';
+        $updated = Utility::updateUtility($args['id'], $data);
+        $message = 'Error occured updating Utility';
         if ($updated == 1) {
             $message = "$args[id] successfully updated";
         }
         $res = $res->withJson([
             'message' => $message,
             'data' => [
-                'person' => $args['id'],
-            ]
+                'utility' => $args['id'],
+            ],
         ]);
         return $res;
     }
 
-    public function deletePerson (Request $req, Response $res, array $args) {
+    public function deleteUtility (Request $req, Response $res, array $args) {
         $res = $res->withJson([
-            'message' => 'person successfully deleted',
+            'message' => 'utility successfully deleted',
             'data' => [
                 'truthiness' => 'placeholder function, nothing actually changed',
                 'count' => 1,

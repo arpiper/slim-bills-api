@@ -25,9 +25,12 @@ $container['mdb'] = function ($c) {
     $db = $c['settings']['db'];
     $conn_str = "mongodb://$db[user]:$db[pass]@$db[host]:$db[port]/$db[authdb]";
     $mdb = App\models\MDB::getMDB($conn_str);#new \MongoDB\Client($conn_str);
+    #$mdb = new \MongoDB\Client($conn_str);
     return $mdb;
 };
-#App\models\Bill::setConnection($container['mdb']);
+App\models\Bill::setConnection($container['mdb']);
+App\models\Person::setConnection($container['mdb']);
+App\models\Utility::setConnection($container['mdb']);
 
 // Authentication class
 $container['auth'] = function($c) {

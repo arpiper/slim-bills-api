@@ -51,6 +51,24 @@ $app->get('/', function (Request $request, Response $response, array $args) {
 
 #$app->add($container->csrf);
 
+// trailing / redirection middleware
+$app->add(function (Request $req, Response $res, callable $next) {
+    $uri = $req->getUri();
+    $path = $uri->getPath();
+    if ($path != '/' && substr($path, -1) == '/') {
+        // permanently redirect paths with a trailing slash 
+        // to their non-trailing counterpart
+        $uri = $uri->withPath(substr($path, 0, -1));
+        if ($req->getMethod() == 'GET') {
+            return $res->withRedirect((string)$uri, 301);
+        } else {
+            return $next($req->withUri($uri), $response);
+        }
+    }
+    return $next($req, $res);
+});
+
+// CORS middleware
 $app->add(function ($req, $res, $next) {
     $response = $next($req, $res);
     return $response

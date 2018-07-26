@@ -21,6 +21,7 @@ class Bill {
         'split_count',
     ];
     protected static $filters = [
+        'id' => FILTER_SANITIZE_STRING,
         'amount' => FILTER_VALIDATE_FLOAT,
         'due_date' => FILTER_SANITIZE_STRING,
         'notes' => FILTER_SANITIZE_STRING,
@@ -30,7 +31,22 @@ class Bill {
             'filter' => FILTER_SANITIZE_STRING, # FILTER_VALIDATE_INT
             'flags' => FILTER_FORCE_ARRAY,
         ],
-        'paid_to' => FILTER_SANITIZE_STRING, # FILTER_VALIDATE_INT,
+        'paid_full' => FILTER_VALIDATE_BOOLEAN,
+        'paid_partial_ids' => [
+            'filter' => FILTER_SANITIZE_STRING,
+            'flags' => FILTER_FORCE_ARRAY,
+        ],
+        'paid_date' => FILTER_SANITIZE_STRING,
+        // the follow values are Person or Utility objects.
+        'paid_to' => FILTER_UNSAFE_RAW,
+        'split_by' => [
+            'filter' => FILTER_UNSAFE_RAW,
+            'flags' => FILTER_FORCE_ARRAY,
+        ],
+        'paid_partials' => [
+            'filter' => FILTER_UNSAFE_RAW,
+            'flags' => FILTER_FORCE_ARRAY,
+        ],
     ];
 
     public static function setConnection ($connection) {
@@ -41,6 +57,7 @@ class Bill {
         $bill = self::$connection->findOne([
             "_id" => new \MongoDB\BSON\ObjectId($id)
         ]);
+        //$bill['id'] = $id;
         return $bill;
     }
 
@@ -49,17 +66,23 @@ class Bill {
         $bills = [];
         $count = 0;
         foreach ($result as $bill) {
-            $bills[(string)$bill['_id']] = $bill;
+            // alias the id field
+            //$bill['id'] = (string)$bill['_id'];
+            $bills[] = $bill;
             $count++;
         }
         return ['bills' => $bills, 'count'=> $count];
     }
 
     public static function createBill ($data) {
+        $filters = array_merge(
+            self::$filters,
+            ['paid_to' => FILTER_SANITIZE_STRING]
+        );
         $filtered = filter_var_array($data, self::$filters);
         $persons = [];
         foreach ($filtered['split_by_ids'] as $personId) {
-            $persons[$personId] = Person::getPerson($person_id);
+            $persons[] = Person::getPerson($personId);
         }
         $filtered['paid_to'] = Utility::getUtility($filtered['paid_to']);
         $bill = array_merge(
@@ -72,9 +95,10 @@ class Bill {
                 'split_by' => $persons,
             ]
         );
-        #var_dump(self::$connection);
         $result = self::$connection->insertOne($bill);
-        return $result->getInsertedId();
+        $bill['id'] = (string)$result->getInsertedId();
+        Bill::updateBill($bill['id'], $bill);
+        return $bill['id'];
     }
 
     public static function updateBill ($billid, $data) {

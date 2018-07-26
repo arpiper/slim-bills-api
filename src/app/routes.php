@@ -62,7 +62,7 @@ $app->add(function (Request $req, Response $res, callable $next) {
         if ($req->getMethod() == 'GET') {
             return $res->withRedirect((string)$uri, 301);
         } else {
-            return $next($req->withUri($uri), $response);
+            return $next($req->withUri($uri), $res);
         }
     }
     return $next($req, $res);
@@ -72,7 +72,7 @@ $app->add(function (Request $req, Response $res, callable $next) {
 $app->add(function ($req, $res, $next) {
     $response = $next($req, $res);
     return $response
-            ->withHeader('Access-Control-Allow-Origin', 'http://example.com')
+            ->withHeader('Access-Control-Allow-Origin', '*')
             ->withHeader('Access-Control-Allow-Headers', 'X-Requested-with, Content-Type, Accept, Origin, Authorization')
             ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS'); 
 });

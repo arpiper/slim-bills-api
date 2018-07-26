@@ -9,6 +9,7 @@ class Utility {
         'payments',
     ];
     protected static $filters = [
+        'id' => FILTER_SANITIZE_STRING,
         'name' => FILTER_SANITIZE_STRING,
         'payments' => [
             'filter' => FILTER_VALIDATE_FLOAT,
@@ -34,7 +35,7 @@ class Utility {
         $utilities = [];
         $count = 0;
         foreach ($results as $util) {
-            $utilities[(string)$util['_id']] = $util;
+            $utilities[] = $util;
             $count++;
         }
         return ['utilities' => $utilities, 'count' => $count];
@@ -46,6 +47,8 @@ class Utility {
             $filtered['payments'] = 0;
         }
         $result = self::$connection->insertOne($filtered);
+        $filtered['id'] = (string)$result->getInsertedId();
+        self::updateUtility($filtered['id'], $filtered);
         return $result->getInsertedId();
     }
 

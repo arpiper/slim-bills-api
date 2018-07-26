@@ -23,7 +23,13 @@ class BillController extends Controller {
 
     public function readBill (Request $req, Response $res, array $args) {
         $bill = Bill::getBill($args['id']);
-        return $res->withJson($bill);
+        $res = $res->withJson([
+            'message' => "retreived bill $args[id]",
+            'data' => [
+                'bill' => $bill,
+            ],
+        ]);
+        return $res;
     }
 
     public function readBills (Request $req, Response $res, array $args) {

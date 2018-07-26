@@ -40,7 +40,7 @@ class UtilityController {
     public function readUtilities (Request $req, Response $res, array $args) {
         $utils = Utility::getUtilities();
         $res = $res->withJson([
-            'message' => "$utils[count] persons found",
+            'message' => "$utils[count] utilities found",
             'data' => $utils,
         ]);
         return $res;

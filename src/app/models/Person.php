@@ -9,6 +9,7 @@ class Person {
         'payments_made',
     ];
     protected static $filters = [
+        'id' => FILTER_SANITIZE_STRING,
         'name' => FILTER_SANITIZE_STRING,
         'payments_made' => [
             'filter' => FILTER_VALIDATE_FLOAT,
@@ -34,7 +35,7 @@ class Person {
         $persons = [];
         $count = 0;
         foreach ($results as $person) {
-            $persons[(string)$person['_id']] = $person;
+            $persons[] = $person;
             $count++;
         }
         return ['persons' => $persons, 'count' => $count];
@@ -46,7 +47,9 @@ class Person {
             $filtered['payments_made'] = 0;
         }
         $result = self::$connection->insertOne($filtered);
-        return $result->getInsertedId();
+        $filtered['id'] = (string)$result->getInsertedId();
+        self::updatePerson($filtered['id'], $filtered);
+        return $filtered['id'];
     }
 
     public static function updatePerson ($personId, $data) {

@@ -57,7 +57,6 @@ class Bill {
         $bill = self::$connection->findOne([
             "_id" => new \MongoDB\BSON\ObjectId($id)
         ]);
-        //$bill['id'] = $id;
         return $bill;
     }
 
@@ -66,8 +65,6 @@ class Bill {
         $bills = [];
         $count = 0;
         foreach ($result as $bill) {
-            // alias the id field
-            //$bill['id'] = (string)$bill['_id'];
             $bills[] = $bill;
             $count++;
         }
@@ -96,6 +93,7 @@ class Bill {
             ]
         );
         $result = self::$connection->insertOne($bill);
+        // add 'standard' id field in addition to mongodb's '_id' object.
         $bill['id'] = (string)$result->getInsertedId();
         Bill::updateBill($bill['id'], $bill);
         return $bill['id'];

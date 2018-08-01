@@ -98,10 +98,13 @@ class Bill {
         foreach ($patch as $key => $val) {
             $filtered[$key] = filter_var($val, self::$filters[$key]);
         }
-        $update = self::$connection->updateOne(
-            ['_id' => new \MongoDB\BSON\ObjectId($billid)],
-            ['$set' => $filtered]
-        );
-        return $update->getModifiedCount();
+        if (count($filtered) > 0) {
+            $update = self::$connection->updateOne(
+                ['_id' => new \MongoDB\BSON\ObjectId($billid)],
+                ['$set' => $filtered]
+            );
+            return $update->getModifiedCount();
+        }
+        return 0;
     }
 }

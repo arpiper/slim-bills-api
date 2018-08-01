@@ -54,11 +54,21 @@ class Person {
 
     public static function updatePerson ($personId, $data) {
         $filtered = filter_var_array($data, self::$filters);
-        $updatedPerson = self::$connection->updateOne(
-            ['_id' => new \MongoDB\BSON\ObjectId($personId)],
-            ['$set' => $filtered]
-        );
-        return $updatedPerson->getModifiedCount();
+        if (count($filtered) > 0) {
+            $updates = [];
+            if (isset($filtered['payments_made'])) {
+                $updates['$inc'] = ['payments_made' => $filtered['payments_made']];
+            }
+            if (isset($filtered['name'])) {
+                $updates['$set'] = ['name' => $filtered['name']];
+            }
+            $updatedPerson = self::$connection->updateOne(
+                ['_id' => new \MongoDB\BSON\ObjectId($personId)],
+                $updates
+            );
+            return $updatedPerson->getModifiedCount();
+        }
+        return 0;
     }
 
 }

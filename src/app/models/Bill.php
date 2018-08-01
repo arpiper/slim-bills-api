@@ -86,23 +86,14 @@ class Bill {
                 'split_by' => $persons,
             ]
         );
-        $result = self::$connection->insertOne($bill);
+        $id = self::$connection->insertOne($bill)->getInsertedId();
         // add 'standard' id field in addition to mongodb's '_id' object.
-        $patch = ['id' => (string)$result->getInsertedId()];
-        Bill::patchBill($bill['id'], $patch);
+        $patch = ['id' => (string)$id];
+        Bill::updateBill((string)$id, $patch);
         return $bill['id'];
     }
 
-    public static function updateBill ($billid, $data) {
-        $filtered = filter_var_array($data, self::$filters);
-        $updatedBill = self::$connection->updateOne(
-            ['_id' => new \MongoDB\BSON\ObjectId($billid)],
-            ['$set' => $filtered]
-        );
-        return $updatedBill->getModifiedCount();
-    }
-
-    public static function patchBill ($billid, $patch) {
+    public static function updateBill ($billid, $patch) {
         $filtered = [];
         foreach ($patch as $key => $val) {
             $filtered[$key] = filter_var($val, self::$filters[$key]);

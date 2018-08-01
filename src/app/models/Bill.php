@@ -39,14 +39,8 @@ class Bill {
         'paid_date' => FILTER_SANITIZE_STRING,
         // the follow values are Person or Utility objects.
         'paid_to' => FILTER_UNSAFE_RAW,
-        'split_by' => [
-            'filter' => FILTER_UNSAFE_RAW,
-            'flags' => FILTER_FORCE_ARRAY,
-        ],
-        'paid_partials' => [
-            'filter' => FILTER_UNSAFE_RAW,
-            'flags' => FILTER_FORCE_ARRAY,
-        ],
+        'split_by' => FILTER_UNSAFE_RAW,
+        'paid_partials' => FILTER_UNSAFE_RAW,
     ];
 
     public static function setConnection ($connection) {
@@ -94,8 +88,8 @@ class Bill {
         );
         $result = self::$connection->insertOne($bill);
         // add 'standard' id field in addition to mongodb's '_id' object.
-        $bill['id'] = (string)$result->getInsertedId();
-        Bill::updateBill($bill['id'], $bill);
+        $patch = ['id' => (string)$result->getInsertedId()];
+        Bill::patchBill($bill['id'], $patch);
         return $bill['id'];
     }
 
@@ -106,5 +100,17 @@ class Bill {
             ['$set' => $filtered]
         );
         return $updatedBill->getModifiedCount();
+    }
+
+    public static function patchBill ($billid, $patch) {
+        $filtered = [];
+        foreach ($patch as $key => $val) {
+            $filtered[$key] = filter_var($val, self::$filters[$key]);
+        }
+        $update = self::$connection->updateOne(
+            ['_id' => new \MongoDB\BSON\ObjectId($billid)],
+            ['$set' => $filtered]
+        );
+        return $update->getModifiedCount();
     }
 }

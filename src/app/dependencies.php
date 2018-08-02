@@ -39,5 +39,7 @@ $container['auth'] = function($c) {
 
 # csrf guard
 $container['csrf'] = function ($c) {
-    return new \Slim\Csrf\Guard;
+    $guard = new \Slim\Csrf\Guard;
+    $guard->setPersistentTokenMode(true);
+    return $guard;
 };

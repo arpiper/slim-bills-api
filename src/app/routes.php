@@ -13,29 +13,31 @@ $app->options('/{routes:.+}', function ($request, $response, $args) {
     return $response;
 });
 
-$app->group('/bills', function () {
-    $this->get('', BillC::class . ':readBills')->setName('bills');
-    $this->post('', BillC::class . ':createBill')->setName('bills');
-    $this->get('/{id}', BillC::class . ':readBill')->setName('bill');
-    $this->put('/{id}', BillC::class . ':updateBill')->setName('updateBill');
-    $this->delete('/{billid}', BillC::class . ':deleteBill')->setName('deleteBill');
-});
+$app->group('', function () {
+    $this->group('/bills', function () {
+        $this->get('', BillC::class . ':readBills')->setName('bills');
+        $this->post('', BillC::class . ':createBill')->setName('bills');
+        $this->get('/{id}', BillC::class . ':readBill')->setName('bill');
+        $this->put('/{id}', BillC::class . ':updateBill')->setName('updateBill');
+        $this->delete('/{billid}', BillC::class . ':deleteBill')->setName('deleteBill');
+    });
 
-$app->group('/persons', function () {
-    $this->get('', PersonC::class . ':readPersons')->setName('persons');
-    $this->post('', PersonC::class . ':createPerson')->setName('persons');
-    $this->get('/{id}', PersonC::class . ':readPerson')->setName('person');
-    $this->put('/{id}', PersonC::class . ':updatePerson')->setName('updatePerson');
-    $this->delete('/{personid}', PersonC::class . ':deletePerson')->setName('deletePerson');
-});
+    $this->group('/persons', function () {
+        $this->get('', PersonC::class . ':readPersons')->setName('persons');
+        $this->post('', PersonC::class . ':createPerson')->setName('persons');
+        $this->get('/{id}', PersonC::class . ':readPerson')->setName('person');
+        $this->put('/{id}', PersonC::class . ':updatePerson')->setName('updatePerson');
+        $this->delete('/{personid}', PersonC::class . ':deletePerson')->setName('deletePerson');
+    });
 
-$app->group('/utilities', function () {
-    $this->get('', UtilC::class . ':readUtilities')->setName('utilities');
-    $this->post('', UtilC::class . ':createUtility')->setName('utilities');
-    $this->get('/{id}', UtilC::class . ':readUtility')->setName('utility');
-    $this->put('/{id}', UtilC::class . ':updateUtility')->setName('updateUtility');
-    $this->delete('/{utilityid}', UtilC::class . ':deletePerson')->setName('deleteUtility');
-});
+    $this->group('/utilities', function () {
+        $this->get('', UtilC::class . ':readUtilities')->setName('utilities');
+        $this->post('', UtilC::class . ':createUtility')->setName('utilities');
+        $this->get('/{id}', UtilC::class . ':readUtility')->setName('utility');
+        $this->put('/{id}', UtilC::class . ':updateUtility')->setName('updateUtility');
+        $this->delete('/{utilityid}', UtilC::class . ':deletePerson')->setName('deleteUtility');
+    });
+})->add($container->csrf);
 
 $app->get('/', function (Request $request, Response $response, array $args) {
     $routes = [];

@@ -18,6 +18,6 @@ class AuthController extends Controller {
             return $response->withJson({'login': 'failed'});
         }
 
-        return $response->withJson({'hello': "$data['username']"});
+        return $response->withJson({'hello': "$data[username]"});
     }
 }

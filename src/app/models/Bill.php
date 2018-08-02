@@ -37,10 +37,10 @@ class Bill {
             'flags' => FILTER_FORCE_ARRAY,
         ],
         'paid_date' => FILTER_SANITIZE_STRING,
-        // the follow values are Person or Utility objects.
-        'paid_to' => FILTER_UNSAFE_RAW,
+        // the following value(s) are Person or Utility objects.
+        'paid_to' => FILTER_SANITIZE_STRING,
         'split_by' => FILTER_UNSAFE_RAW,
-        'paid_partials' => FILTER_UNSAFE_RAW,
+        'paid_partial' => FILTER_UNSAFE_RAW,
     ];
 
     public static function setConnection ($connection) {
@@ -71,33 +71,43 @@ class Bill {
             ['paid_to' => FILTER_SANITIZE_STRING]
         );
         $filtered = filter_var_array($data, self::$filters);
+        // set the split_by value with Person objects.
         $persons = [];
         foreach ($filtered['split_by_ids'] as $personId) {
             $persons[] = Person::getPerson($personId);
         }
+        // set the paid_to value with a Utility object, 
+        // value should initially come in as a string id.
         $filtered['paid_to'] = Utility::getUtility($filtered['paid_to']);
         $bill = array_merge(
             $filtered,
             [
                 'paid_full' => false,
                 'paid_partial_ids' => [],
-                'paid_partials' => [],
+                'paid_partial' => [],
                 'paid_date' => '',
                 'split_by' => $persons,
             ]
         );
-        $id = self::$connection->insertOne($bill)->getInsertedId();
+        $bill['id'] = (string)self::$connection->insertOne($bill)->getInsertedId();
         // add 'standard' id field in addition to mongodb's '_id' object.
-        $patch = ['id' => (string)$id];
-        Bill::updateBill((string)$id, $patch);
+        Bill::updateBill($bill['id'], $bill);
         return $bill['id'];
     }
 
-    public static function updateBill ($billid, $patch) {
-        $filtered = [];
-        foreach ($patch as $key => $val) {
-            $filtered[$key] = filter_var($val, self::$filters[$key]);
-        }
+    public static function updateBill ($billid, $data) {
+        // get the values that are Mongo BSON's to backup. 
+        // filter_var will nullify them.
+        // manually check the mongo BSON's.
+        $bsons = [
+            'paid_to' => self::checkUtilityBSON($data['paid_to']),
+            'split_by' => self::checkPersonBSON($data['split_by']),
+            'paid_partial' => self::checkPersonBSON($data['paid_partial']),
+        ];
+        $filtered = filter_var_array($data, self::$filters);
+        // merge the separately checked arrays.
+        $filtered = array_merge($filtered, $bsons);
+
         if (count($filtered) > 0) {
             $update = self::$connection->updateOne(
                 ['_id' => new \MongoDB\BSON\ObjectId($billid)],
@@ -106,5 +116,17 @@ class Bill {
             return $update->getModifiedCount();
         }
         return 0;
+    }
+
+    public static function checkUtilityBSON ($value) {
+        return Utility::getUtility($value['id']);
+    }
+
+    public static function checkPersonBSON ($values) {
+        $arr = [];
+        foreach ($values as $v) {
+            $arr[] = Person::getPerson($v['id']);
+        }
+        return $arr;
     }
 }

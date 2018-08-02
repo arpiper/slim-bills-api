@@ -52,6 +52,7 @@ class BillController extends Controller {
             'message' => $message,
             'data' => [
                 'bill' => $args['id'],
+                'updated' => $updated,
             ],
         ]);
         return $res;

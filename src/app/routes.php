@@ -42,16 +42,10 @@ $app->group('', function () {
 $app->get('/', function (Request $request, Response $response, array $args) {
     $routes = [];
     foreach ($this->router->getRoutes() as $route) {
-        //array_push($routes, $route->getPattern());
         $routes[$route->getName()] = $route->getPattern();
     }
     return $response->withJson(['message' => 'document root', 'data' => $routes]);
 });
-
-
-#$app->add(new CsrfMiddleware($container));
-
-#$app->add($container->csrf);
 
 // trailing / redirection middleware
 $app->add(function (Request $req, Response $res, callable $next) {

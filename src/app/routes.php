@@ -7,7 +7,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use App\controllers\BillController as BillC;
 use App\controllers\PersonController as PersonC;
 use App\controllers\UtilityController as UtilC;
-use App\middleware\CsrfMiddleware;
+use App\middleware\CsrfResponseMiddleware;
 
 $app->options('/{routes:.+}', function ($request, $response, $args) {
     return $response;
@@ -37,7 +37,7 @@ $app->group('', function () {
         $this->put('/{id}', UtilC::class . ':updateUtility')->setName('updateUtility');
         $this->delete('/{utilityid}', UtilC::class . ':deletePerson')->setName('deleteUtility');
     });
-})->add($container->csrf);
+})->add(new CsrfResponseMiddleware($container))->add($container->csrf);
 
 $app->get('/', function (Request $request, Response $response, array $args) {
     $routes = [];
@@ -69,6 +69,6 @@ $app->add(function ($req, $res, $next) {
     $response = $next($req, $res);
     return $response
             ->withHeader('Access-Control-Allow-Origin', '*')
-            ->withHeader('Access-Control-Allow-Headers', 'X-Requested-with, Content-Type, Accept, Origin, Authorization')
+            ->withHeader('Access-Control-Allow-Headers', 'X-Requested-with, Content-Type, Accept, Origin, Authorization, X-CSRF-Token')
             ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS'); 
 });

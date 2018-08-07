@@ -68,7 +68,10 @@ $app->add(function (Request $req, Response $res, callable $next) {
 $app->add(function ($req, $res, $next) {
     $response = $next($req, $res);
     return $response
-            ->withHeader('Access-Control-Allow-Origin', '*')
-            ->withHeader('Access-Control-Allow-Headers', 'X-Requested-with, Content-Type, Accept, Origin, Authorization, X-CSRF-Token')
+            ->withHeader('Access-Control-Allow-Origin', 'http://localhost:4200')
+            ->withHeader('Access-Control-Allow-Credentials', 'true')
+            ->withHeader(
+                'Access-Control-Allow-Headers', 
+                'X-Requested-with, Content-Type, Accept, Origin, Authorization, X-CSRF-Token, CSRF-Token')
             ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS'); 
 });

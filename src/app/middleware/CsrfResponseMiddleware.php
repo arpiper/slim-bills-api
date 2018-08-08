@@ -15,11 +15,11 @@ class CsrfResponseMiddleware extends Middleware {
             $header = $req->getHeader('CSRF-Token');
             $token = json_decode($header);
             $name = isset($token['csrf_name']) ? $token['csrf_name'] : false;
-            $value = issed($token['csrf_value']) ? $token['csrf_value'] : false;
+            $value = isset($token['csrf_value']) ? $token['csrf_value'] : false;
             if (!$name || !$value || !$this->container->csrf->validateToken($name, $value)) {
                 $req = $this->container->csrf->generateNewToken($req);
                 $failureCallable = $this->getFailureCallable();
-                return $failureCallable($request, $response, $next);
+                return $failureCallable($req, $res, $next);
             }
         }
         // generate new token 

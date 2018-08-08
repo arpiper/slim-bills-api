@@ -7,7 +7,6 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use App\controllers\BillController as BillC;
 use App\controllers\PersonController as PersonC;
 use App\controllers\UtilityController as UtilC;
-use App\middleware\CsrfResponseMiddleware;
 
 $app->options('/{routes:.+}', function ($request, $response, $args) {
     return $response;
@@ -37,7 +36,7 @@ $app->group('', function () {
         $this->put('/{id}', UtilC::class . ':updateUtility')->setName('updateUtility');
         $this->delete('/{utilityid}', UtilC::class . ':deletePerson')->setName('deleteUtility');
     });
-})->add(new CsrfResponseMiddleware($container))->add($container->csrf);
+})->add($container->csrf);
 
 $app->get('/', function (Request $request, Response $response, array $args) {
     $routes = [];

@@ -7,12 +7,15 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use App\controllers\BillController as BillC;
 use App\controllers\PersonController as PersonC;
 use App\controllers\UtilityController as UtilC;
+use App\controllers\UserController as UserC;
+use App\controllers\AuthController as AuthC;
 
 $app->options('/{routes:.+}', function ($request, $response, $args) {
     return $response;
 });
 
-$app->group('', function () {
+// main api routes to /bills, /persons, /utilities
+$app->group('/api', function () {
     $this->group('/bills', function () {
         $this->get('', BillC::class . ':readBills')->setName('bills');
         $this->post('', BillC::class . ':createBill')->setName('bills');
@@ -37,6 +40,15 @@ $app->group('', function () {
         $this->delete('/{utilityid}', UtilC::class . ':deletePerson')->setName('deleteUtility');
     });
 })->add($container->csrf);
+
+// api routes for user authentication/creation
+$app->group('/api', function () {
+
+    $this->post('/users', UserC::class . ':createUser')->setName('users');
+    $this->put('/users/{id}', UserC::class . ':updateUser')->setName('updateUser');
+
+    $this->post('/login', AuthC::class . ':login')->setName('login');
+});
 
 $app->get('/', function (Request $request, Response $response, array $args) {
     $routes = [];
@@ -74,3 +86,10 @@ $app->add(function ($req, $res, $next) {
                 'X-Requested-with, Content-Type, Accept, Origin, Authorization, X-CSRF-Token, CSRF-Token')
             ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS'); 
 });
+
+// JWT authorization middleware.
+$app->add(new \Tuupola\Middleware\JwtAuthentication([
+    'path' => ['/api'],
+    'ignore' => ['/api/users', '/api/login'],
+    'secret' => 'supersecretkeyyoushouldntcommit', // set as env variable for production.
+]));

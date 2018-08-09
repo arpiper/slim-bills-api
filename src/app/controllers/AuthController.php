@@ -5,11 +5,13 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Container\ContainerInterface as Container;
 
+use App\models\Auth;
+
 class AuthController extends Controller {
 
     public function login(Request $req, Response $res, array $args) {
         $data = $req->getParsedBody();
-        $auth = $this->container->auth->attemptLogin(
+        $auth = Auth::authorizeUser(
             $data['username'],
             $data['password']
         );
@@ -18,6 +20,10 @@ class AuthController extends Controller {
             return $response->withJson({'login': 'failed'});
         }
 
-        return $response->withJson({'hello': "$data[username]"});
+        return $response->withJson({'jwt': $auth});
+    }
+
+    public function logout(Request $req, Response $res, array $args) {
+        return $res;
     }
 }

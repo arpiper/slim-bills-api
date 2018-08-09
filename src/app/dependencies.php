@@ -31,6 +31,7 @@ $container['mdb'] = function ($c) {
 App\models\Bill::setConnection($container['mdb']);
 App\models\Person::setConnection($container['mdb']);
 App\models\Utility::setConnection($container['mdb']);
+App\models\User::setConnection($container['mdb']);
 
 // Authentication class
 $container['auth'] = function($c) {

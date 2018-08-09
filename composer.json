@@ -12,7 +12,10 @@
         "slim/slim": "^3.0",
         "monolog/monolog": "^1.23",
         "mongodb/mongodb": "^1.4",
-        "slim/csrf": "^0.8.2"
+        "slim/csrf": "^0.8.2",
+        "tuupola/slim-jwt-auth": "^3.1",
+        "firebase/php-jwt": "^5.0",
+        "tuupola/base62": "^0.10.0"
     },
     "autoload": {
         "psr-4": {

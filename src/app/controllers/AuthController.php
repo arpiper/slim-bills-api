@@ -5,7 +5,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Container\ContainerInterface as Container;
 
-use App\models\Auth;
+use App\auth\Auth;
 
 class AuthController extends Controller {
 

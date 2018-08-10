@@ -4,6 +4,10 @@ namespace App\models;
 class User {
 
     protected static $connection;
+    protected static $filters = [
+        'username' => FILTER_SANITIZE_STRING,
+        'email' =>  FILTER_VALIDATE_EMAIL,
+    ];
 
     public static function setConnection ($conn) {
         self::$connection = $conn->users;
@@ -17,13 +21,14 @@ class User {
     }
     
     public static function createUser ($user) {
+        $username = filter_var($user['username'], self::$filters['username']);
+        $email = filter_var($user['email'], self::$filters['email']);
+        $password = password_hash($user['password'], PASSWORD_DEFAULT);
         $result = self::$connection->insertOne([
-            'username' => $user['username'],
-            'email' => $user['email'],
-            'password' => password_hash($user['password'], PASSWORD_DEFAULT),
+            'username' => $username,
+            'email' => $email,
+            'password' => $password,
         ]);
-
         return $result;
     }
-
 }

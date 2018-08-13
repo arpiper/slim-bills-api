@@ -21,7 +21,7 @@ class Auth {
             $token = self::generateToken($username);
             return $token;
         }
-        return false
+        return false;
     }
 
     public static function checkToken () {
@@ -31,8 +31,8 @@ class Auth {
     }
 
     public static function generateToken ($username) {
-        $now = new DateTime();
-        $exp = new DateTime("+15 minutes");
+        $now = new \DateTime();
+        $exp = new \DateTime("+15 minutes");
         $jti = (new Base62)->encode(random_bytes(16));
         $payload = [
             'iat' => $now->getTimestamp(),

@@ -17,10 +17,10 @@ class AuthController extends Controller {
         );
         
         if (!$auth) {
-            return $response->withJson({'login': 'failed'});
+            return $res->withJson(['login' => 'failed']);
         }
 
-        return $response->withJson({'jwt': $auth});
+        return $res->withJson(['jwt' => $auth]);
     }
 
     public function logout(Request $req, Response $res, array $args) {

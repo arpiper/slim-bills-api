@@ -19,8 +19,10 @@ class AuthController extends Controller {
         if (!$auth) {
             return $res->withJson(['login' => 'failed']);
         }
-
-        return $res->withJson(['jwt' => $auth]);
+        
+        // add secure flag for https only sending.
+        return $res->withAddedHeader('Set-Cookie', "token=$auth[token];path=/;httponly")
+            ->withJson(['messaeg' => 'login successful']);
     }
 
     public function logout(Request $req, Response $res, array $args) {

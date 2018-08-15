@@ -41,7 +41,10 @@ class Auth {
             'name' => $username,
         ];
         $secret = 'supersecretkeyyoushouldntcommit'; // need to set as env variable for production.
-        $token = JWT::encode($payload, $secret, 'HS256');
+        $token = [
+            'token' => JWT::encode($payload, $secret, 'HS256'),
+            'expires' => $exp->getTimestamp(),
+        ];
         return $token;
     }
 }

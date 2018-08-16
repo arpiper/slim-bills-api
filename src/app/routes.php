@@ -48,6 +48,8 @@ $app->group('/api', function () {
     $this->put('/users/{id}', UserC::class . ':updateUser')->setName('updateUser');
 
     $this->post('/login', AuthC::class . ':login')->setName('login');
+    $this->get('/logout', AuthC::class . ':logout')->setName('logout');
+    $this->get('/auth', AuthC::class . ':checkAuth')->setName('checkAuth');
 });
 
 $app->get('/', function (Request $request, Response $response, array $args) {
@@ -89,7 +91,7 @@ $app->add(function ($req, $res, $next) {
 
 // JWT authorization middleware.
 $app->add(new \Tuupola\Middleware\JwtAuthentication([
-    'path' => ['/api'],
+    'path' => ['/api/'],
     'ignore' => ['/api/users', '/api/login'],
     'secret' => 'supersecretkeyyoushouldntcommit', // set as env variable for production.
 ]));

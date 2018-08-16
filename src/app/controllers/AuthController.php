@@ -22,10 +22,22 @@ class AuthController extends Controller {
         
         // add secure flag for https only sending.
         return $res->withAddedHeader('Set-Cookie', "token=$auth[token];path=/;httponly")
-            ->withJson(['messaeg' => 'login successful']);
+            ->withJson([
+                'message' => 'login successful',
+                'data' => [
+                    'username' => $data['username'],
+                ],
+            ]);
     }
 
     public function logout(Request $req, Response $res, array $args) {
+        $cookie = 'token=deleted;path=/;httponly;';
+        $res = $res->withAddedHeader('Set-Cookie', $cookie)
+            ->withJson(['message' => 'successfully logged out']);
+        return $res;
+    }
+
+    public function checkAuth(Request $req, Response $res, array $args) {
         return $res;
     }
 }

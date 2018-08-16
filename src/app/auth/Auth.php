@@ -32,7 +32,7 @@ class Auth {
 
     public static function generateToken ($username) {
         $now = new \DateTime();
-        $exp = new \DateTime("+15 minutes");
+        $exp = new \DateTime("now +1 hour");
         $jti = (new Base62)->encode(random_bytes(16));
         $payload = [
             'iat' => $now->getTimestamp(),

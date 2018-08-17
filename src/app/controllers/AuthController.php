@@ -38,6 +38,12 @@ class AuthController extends Controller {
     }
 
     public function checkAuth(Request $req, Response $res, array $args) {
+        $data = [
+            'message' => 'authentication check successful',
+            'data' => [
+                'auth' => true,
+            ]
+        ];
         return $res;
     }
 }

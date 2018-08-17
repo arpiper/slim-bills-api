@@ -91,7 +91,7 @@ $app->add(function ($req, $res, $next) {
 
 // JWT authorization middleware.
 $app->add(new \Tuupola\Middleware\JwtAuthentication([
-    'path' => ['/api/'],
+    'path' => ['/api'],
     'ignore' => ['/api/users', '/api/login'],
     'secret' => 'supersecretkeyyoushouldntcommit', // set as env variable for production.
 ]));

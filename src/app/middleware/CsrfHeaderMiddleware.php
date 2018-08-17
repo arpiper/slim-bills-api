@@ -48,9 +48,10 @@ class CsrfHeaderMiddleware extends Guard {
         ]);
 
         // update the response header
+        $cookie = "CSRF-Token=$jsonToken;path=/";
         $response = $response
                         ->withAddedHeader('X-CSRF-Token', $jsonToken)
-                        ->withAddedHeader('Set-Cookie', "CSRF-Token=$jsonToken");
+                        ->withAddedHeader('Set-Cookie', $cookie);
 
         // enforce the storage limit.
         $this->enforceStorageLimit();

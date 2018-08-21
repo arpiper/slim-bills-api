@@ -35,7 +35,8 @@ App\models\User::setConnection($container['mdb']);
 
 // Authentication class
 $container['auth'] = function($c) {
-    return new App\auth\Auth;
+    $key = $c->get('settings')['secret'];
+    return new App\auth\Auth($key);
 };
 
 # csrf guard

@@ -24,5 +24,7 @@ return [
             'user' => 'pipesBills',
             'pass' => '543twoone',
         ],
+
+        'secret' => 'helloworkd',
     ],
 ];

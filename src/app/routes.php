@@ -89,9 +89,10 @@ $app->add(function ($req, $res, $next) {
             ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS'); 
 });
 
+$sec = $settings['settings']['secret'];
 // JWT authorization middleware.
 $app->add(new \Tuupola\Middleware\JwtAuthentication([
     'path' => ['/api'],
-    'ignore' => ['/api/users', '/api/login'],
-    'secret' => 'supersecretkeyyoushouldntcommit', // set as env variable for production.
+    'ignore' => ['/api/users', '/api/login', '/api/auth'],
+    'secret' => $sec, //'supersecretkeyyoushouldntcommit', // set as env variable for production.
 ]));

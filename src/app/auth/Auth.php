@@ -1,13 +1,20 @@
 <?php
 namespace App\auth;
 
+use Psr\Http\Message\ServerRequestInterface as Request;
 use \Firebase\JWT\JWT;
 use \Tuupola\Base62;
 use App\models\User;
 
 class Auth {
 
-    public static function authorizeUser ($username, $password) {
+    protected $secret;
+
+    public function __construct ($secret) {
+        $this->secret = $secret;
+    }
+
+    public function authorizeUser ($username, $password) {
         $user = User::getUser($username);
         // $username does not exist in the db.
         if (!$user) {
@@ -18,19 +25,36 @@ class Auth {
         if (password_verify($password, $user['password'])) {
             // user authorized 
             //$_SESSION['user'] = (string)$user['_id'];
-            $token = self::generateToken($username);
+            $token = $this->generateToken($username);
             return $token;
         }
         return false;
     }
 
-    public static function checkToken () {
+    public function getToken (Request $req) {
+        return $req->getCookieParam('token', false);
     }
 
-    public static function refreshToken () {
+    public function decodeToken (string $token) {
+        try {
+            $decoded = JWT::decode(
+                $token,
+                $this->secret, //'supersecretkeyyoushouldntcommit',
+                (array) 'HS256'
+            );
+        } catch (\Firebase\JWT\ExpiredException $exception) {
+            return $exception;
+        }
+        return $token;
     }
 
-    public static function generateToken ($username) {
+    public function checkToken () {
+    }
+
+    public function refreshToken () {
+    }
+
+    public function generateToken ($username) {
         $now = new \DateTime();
         $exp = new \DateTime("now +1 hour");
         $jti = (new Base62)->encode(random_bytes(16));
@@ -42,7 +66,7 @@ class Auth {
         ];
         $secret = 'supersecretkeyyoushouldntcommit'; // need to set as env variable for production.
         $token = [
-            'token' => JWT::encode($payload, $secret, 'HS256'),
+            'token' => JWT::encode($payload, $this->secret, 'HS256'),
             'expires' => $exp->getTimestamp(),
         ];
         return $token;

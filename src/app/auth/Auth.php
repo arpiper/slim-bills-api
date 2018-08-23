@@ -51,7 +51,18 @@ class Auth {
     public function checkToken () {
     }
 
-    public function refreshToken () {
+    public function refreshToken ($token) {
+        // set leeway to one hour.
+        JWT::$leeway = 3600;
+        $decoded = JWT::decode($token, $this->secret, ['HS256']);
+        
+        // update the iat, exp of the token.
+        $decoded['iat'] = (new \DateTime())->getTimestamp();
+        $decoded['exp'] = (new \DateTime("now +1 hour"))->getTimestamp();
+        return [
+            'token' => JWT::encode($decoded, $this->secret),
+            'expires_in' => $decoded['exp']->getTimestamp()
+        ];
     }
 
     public function generateToken ($username) {
@@ -67,7 +78,7 @@ class Auth {
         $secret = 'supersecretkeyyoushouldntcommit'; // need to set as env variable for production.
         $token = [
             'token' => JWT::encode($payload, $this->secret, 'HS256'),
-            'expires' => $exp->getTimestamp(),
+            'expires_in' => $exp->getTimestamp(),
         ];
         return $token;
     }

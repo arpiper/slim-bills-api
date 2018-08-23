@@ -21,20 +21,31 @@ class AuthController extends Controller {
             $data['username'],
             $data['password']
         );
-        
+
+        // set the defatul response data to succesfull login
+        $json = [
+            'message' => 'login successful',
+            'status' => 200,
+            'data' => [
+                'expires_in' => '',
+                'username' => $data['username'],
+            ],
+        ];
+
+        // authorization failed. 
         if (!$auth) {
-            return $res->withJson(['login' => 'failed']);
+            // update the return json data to failure.
+            $json['message'] = 'login failed';
+            $json['status'] = 401;
+            return $res->withJson($json);
         }
         
-        // add secure flag for https only sending.
-        return $res->withAddedHeader('Set-Cookie', "token=$auth[token];path=/;httponly")
-            ->withJson([
-                'message' => 'login successful',
-                'status' => 200,
-                'data' => [
-                    'username' => $data['username'],
-                ],
-            ]);
+        // add secure flag for https only sending., add expiration
+        // update the return json data with token expiration
+        $json['data']['expires_in'] = $auth['expires_in'];
+        $cookie = "token=$auth[token];path=/;httponly;";
+        return $res->withAddedHeader('Set-Cookie', $cookie)
+            ->withJson($json);
     }
 
     public function logout(Request $req, Response $res, array $args) {
@@ -62,9 +73,33 @@ class AuthController extends Controller {
                 $data['data']['auth'] = true;
                 $data['status'] = 200;
             } catch (\Firebase\JWT\ExpiredException $exception) {
-                return $res->withJson($data);
+                $newToken = $this->auth->refreshToken($token);
+                $data['data']['expires_in'] = $newToken['expires_in'];
+                return $res->withHeader('Set-Cookie', "token=$newToken[token];path=/;httponly;")
+                    ->$withJson($data);
             }
         }
         return $res->withJson($data);
+    }
+
+    /*
+     * Refresh the token with a new expiration.
+     */
+    public function refreshToken(Request $req, Response $res, array $args) {
+        // get the current token
+        $token = $this->auth->getToken($req);
+        // refresh the old token
+        $newToken = $this->auth->refreshToken($token);
+        $data = [
+            'message' => 'token refreshed',
+            'status' => 200,
+            'data' => [
+                'expires_in' => $newToken['expires_in'],
+            ],
+        ];
+        // add secure flag for https only sending, add expiration
+        $cookie = "token=$newToken[token];path=/;httponly;";
+        return $res->withHeader('Set-Cookie', $cookie)
+            ->withJson($data);
     }
 }
